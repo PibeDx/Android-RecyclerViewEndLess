@@ -2,7 +2,6 @@ package com.josecuentas.android_recyclerviewendless;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 /**
  * Created by jcuentas on 21/12/16.
@@ -23,20 +22,10 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
 
     private LinearLayoutManager mLinearLayoutManager;
 
-//    public EndlessRecyclerOnScrollListener(LinearLayoutManager linearLayoutManager) {
-//        this.mLinearLayoutManager = linearLayoutManager;
-//    }
-
-
-    public void cancelLoading() {
-        this.loading = false;
-    }
-
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
         if (mLinearLayoutManager == null) {
-            //mLinearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
             mLinearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         }
 
@@ -44,7 +33,7 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
         visibleItemCount = recyclerView.getChildCount();
         totalItemCount = mLinearLayoutManager.getItemCount();
         firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
-        Log.i(TAG, "onScrolled() called with: visibleItemCount = [" + visibleItemCount + "], totalItemCount = [" + totalItemCount + "], firstVisibleItem = [" + firstVisibleItem + "]");
+        //Log.i(TAG, "onScrolled() called with: visibleItemCount = [" + visibleItemCount + "], totalItemCount = [" + totalItemCount + "], firstVisibleItem = [" + firstVisibleItem + "]");
         if (loading) {
             if (totalItemCount > previousTotal) {
                 loading = false;

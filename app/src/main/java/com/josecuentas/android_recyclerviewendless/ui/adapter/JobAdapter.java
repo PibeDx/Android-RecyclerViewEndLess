@@ -1,10 +1,13 @@
-package com.josecuentas.android_recyclerviewendless;
+package com.josecuentas.android_recyclerviewendless.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.josecuentas.android_recyclerviewendless.model.Job;
+import com.josecuentas.android_recyclerviewendless.R;
 
 import java.util.List;
 
@@ -41,7 +44,8 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolder viewHolder = (ViewHolder) holder;
             final Job job = mDataList.get(position);
             String name = job.getName();
-            viewHolder.mTviName.setText(name);
+            int number = position + 1;
+            viewHolder.mTviName.setText(number + ": " + name);
         }
     }
 

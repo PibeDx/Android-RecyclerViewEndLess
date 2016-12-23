@@ -1,4 +1,4 @@
-package com.josecuentas.android_recyclerviewendless;
+package com.josecuentas.android_recyclerviewendless.model;
 
 /**
  * Created by jcuentas on 21/12/16.
@@ -7,6 +7,9 @@ package com.josecuentas.android_recyclerviewendless;
 public class Job {
 
     private String name;
+
+    public Job() {
+    }
 
     public Job(String name) {
         this.name = name;
