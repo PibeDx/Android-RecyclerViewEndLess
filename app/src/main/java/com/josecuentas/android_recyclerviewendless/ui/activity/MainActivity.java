@@ -7,14 +7,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.josecuentas.android_recyclerviewendless.EndlessRecyclerOnScrollListener;
-import com.josecuentas.android_recyclerviewendless.model.Job;
-import com.josecuentas.android_recyclerviewendless.ui.adapter.JobAdapter;
+import com.josecuentas.android_recyclerviewendless.EndlessRecyclerOnScrollListenerTest;
 import com.josecuentas.android_recyclerviewendless.R;
 import com.josecuentas.android_recyclerviewendless.mapper.JobMapper;
+import com.josecuentas.android_recyclerviewendless.model.Job;
 import com.josecuentas.android_recyclerviewendless.rest.ApiClient;
-import com.josecuentas.android_recyclerviewendless.rest.response.BaseResponse;
 import com.josecuentas.android_recyclerviewendless.rest.entity.JobEntity;
+import com.josecuentas.android_recyclerviewendless.rest.response.BaseResponse;
+import com.josecuentas.android_recyclerviewendless.ui.adapter.JobAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRviContainer;
     private List<Job> mJobList = new ArrayList<>();
     private JobAdapter mJobAdapter;
-    private EndlessRecyclerOnScrollListener mEndlessRecyclerOnScrollListener;
+    private EndlessRecyclerOnScrollListenerTest mEndlessRecyclerOnScrollListener;
     private int mPages = 5;
     private int mCurrentPage = 1;
     private JobMapper mMapper = new JobMapper();
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private int mOffset = 0;
 
     /*Cambiar dependiendo de tipo de prueba*/
-    private final boolean isSimulation = true;
+    private final boolean isSimulation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         injectView();
         setupRecycler();
         loadData();
-        injectAdapters();
+//        injectAdapters();
     }
 
     private void injectView() {
@@ -60,8 +60,10 @@ public class MainActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRviContainer.setLayoutManager(llm);
         mRviContainer.setHasFixedSize(true);
-        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListener() {
+
+        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListenerTest() {
             @Override public void onLoadMore(int currentPage) {
+                mJobAdapter.showProgress();
                 Log.d(TAG, "onLoadMore() called with: currentPage = [" + currentPage + "]");
                 loadDataEndLess(currentPage);
             }
@@ -87,8 +89,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void injectAdapters() {
-        mJobAdapter = new JobAdapter(mJobList);
-        mRviContainer.setAdapter(mJobAdapter);
+        if (mJobAdapter == null) {
+            mJobAdapter = new JobAdapter(mJobList);
+            mRviContainer.setAdapter(mJobAdapter);
+        }
     }
 
     private void mookJobList() {
@@ -116,8 +120,9 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     BaseResponse<JobEntity> body = response.body();
                     List<Job> jobList = mMapper.transformList(body.data);
-                    mJobList.addAll(jobList);
-                    mJobAdapter.notifyDataSetChanged();
+                    //mJobList.addAll(jobList);
+                    injectAdapters();
+                    mJobAdapter.addItems(jobList);
                 }
             }
 
