@@ -4,10 +4,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.josecuentas.android_recyclerviewendless.model.Job;
 import com.josecuentas.android_recyclerviewendless.R;
+import com.josecuentas.android_recyclerviewendless.model.Job;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int ROW_PROGRES = 1;
 
     private List<Job> mDataList;
+    private boolean isProgressVisible = false;
 
     public JobAdapter(List<Job> dataList) {
         mDataList = dataList;
@@ -34,7 +36,7 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return vh;
         } else { //ROW_PROGRES
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_progress,parent, false);
-            vh = new ViewHolder(view);
+            vh = new ProgressViewHolder(view);
             return vh;
         }
     }
@@ -46,11 +48,34 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             String name = job.getName();
             int number = position + 1;
             viewHolder.mTviName.setText(number + ": " + name);
+        } else if (holder instanceof ProgressViewHolder) {
+            ProgressViewHolder progressViewHolder = (ProgressViewHolder) holder;
         }
     }
 
+//    @Override public int getItemCount() {
+//        return mDataList.size() + (isProgressVisible ? 1 : 0);
+//    }
+
     @Override public int getItemCount() {
-        return mDataList.size();
+        return mDataList.size() + 1;
+    }
+
+    @Override public int getItemViewType(int position) {
+        if (position >= mDataList.size()) {
+            return ROW_PROGRES;
+        }
+        return ROW_ITEM;
+    }
+
+    public void showProgress() {
+        this.isProgressVisible = true;
+    }
+
+    public void addItems(List<Job> jobList){
+        this.isProgressVisible = false;
+        mDataList.addAll(jobList);
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -60,6 +85,14 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
             mTviName = (TextView) itemView.findViewById(R.id.tviName);
+        }
+    }
+
+    class ProgressViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar mPbaLoading;
+        public ProgressViewHolder(View itemView) {
+            super(itemView);
+            mPbaLoading = (ProgressBar) itemView.findViewById(R.id.pbaLoading);
         }
     }
 }
