@@ -1,5 +1,7 @@
 package com.josecuentas.android_recyclerviewendless.ui.adapter;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +25,11 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Job> mDataList;
     private boolean isProgressVisible = false;
+    private final Handler mMainHandler; //Esta notificacion no se puede dar en el hilo principal
 
-    public JobAdapter(List<Job> dataList) {
-        mDataList = dataList;
+    public JobAdapter(List<Job> jobList) {
+        mDataList = jobList;
+        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -53,12 +57,8 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-//    @Override public int getItemCount() {
-//        return mDataList.size() + (isProgressVisible ? 1 : 0);
-//    }
-
     @Override public int getItemCount() {
-        return mDataList.size() + 1;
+        return mDataList.size() + (isProgressVisible ? 1 : 0);
     }
 
     @Override public int getItemViewType(int position) {
@@ -70,12 +70,37 @@ public class JobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void showProgress() {
         this.isProgressVisible = true;
+
+        mMainHandler.post(new Runnable() {
+            @Override public void run() {
+                //notifyDataSetChanged();
+                notifyItemInserted(getItemCount());
+            }
+        });
+    }
+
+    public void hideProgress() {
+        this.isProgressVisible = false;
+        mMainHandler.post(new Runnable() {
+            @Override public void run() {
+                notifyItemRemoved(getItemCount());
+            }
+        });
     }
 
     public void addItems(List<Job> jobList){
         this.isProgressVisible = false;
         mDataList.addAll(jobList);
-        notifyDataSetChanged();
+        mMainHandler.post(new Runnable() {
+            @Override public void run() {
+                notifyDataSetChanged();
+            }
+        });
+
+    }
+
+    public boolean isProgressVisible() {
+        return this.isProgressVisible;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
