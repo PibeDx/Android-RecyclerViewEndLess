@@ -13,7 +13,7 @@ import android.support.v7.widget.RecyclerView;
 public abstract class EndlessRecyclerOnScrollListenerTest extends RecyclerView.OnScrollListener {
     public static String TAG = EndlessRecyclerOnScrollListenerTest.class.getSimpleName();
 
-    private int preloadOffset = 1; // The minimum amount of items to have below your current scroll position before loading more.
+    private int preloadOffset = 2; // The minimum amount of items to have below your current scroll position before loading more.
     private int previousTotal = 0; // The total number of items in the dataset after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
 
@@ -23,25 +23,36 @@ public abstract class EndlessRecyclerOnScrollListenerTest extends RecyclerView.O
 
     @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
-        //Log.d(TAG, "onScrolled() called with: dx = [" + dx + "], dy = [" + dy + "]");
         setLinearLayoutManager(recyclerView);
 
         completelyVisibleItemPosition = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
         totalItemCount = mLinearLayoutManager.getItemCount();
 
+        //validamos para cuando el servicio ya no traiga datos
         if (loading && totalItemCount > previousTotal) { //
             loading = false;
             previousTotal = totalItemCount;
         }
-
-        if (!loading && allViewVisibleOrLastViewReached() && dy >= 0) { //
-            // End has been reached
-
-            // Do something
+        if (!loading && endlessScrollEnabled() && allViewVisibleOrLastViewReached() && dy >= 0) {
             currentPage++;
             onLoadMore(currentPage);
             loading = true;
         }
+
+        //TODO: tratamos de reemplazar lineas arriba
+//        if (!enableLoading() && endlessScrollEnabled() && allViewVisibleOrLastViewReached() && dy >= 0) {
+//            currentPage++;
+//            onLoadMore(currentPage);
+//            loading = true;
+//        }
+    }
+
+    private boolean enableLoading() {
+        if (loading && totalItemCount > previousTotal) { //
+            loading = false;
+            previousTotal = totalItemCount;
+        }
+        return loading;
     }
 
     private void setLinearLayoutManager(RecyclerView recyclerView){
@@ -62,4 +73,5 @@ public abstract class EndlessRecyclerOnScrollListenerTest extends RecyclerView.O
     }
 
     public abstract void onLoadMore(int currentPage);
+    public abstract boolean endlessScrollEnabled();
 }
