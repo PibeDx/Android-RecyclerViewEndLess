@@ -3,6 +3,7 @@ package com.josecuentas.android_recyclerviewendless.ui.activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,6 +23,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+/*
+* En base de https://github.com/ramirodo/endless-recycler-view-adapter
+* */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRviContainer;
     private List<Job> mJobList = new ArrayList<>();
     private JobAdapter mJobAdapter;
-    private EndlessRecyclerOnScrollListenerTest mEndlessRecyclerOnScrollListener;
     private int mPages = 5;
     private int mCurrentPage = 1;
     private JobMapper mMapper = new JobMapper();
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         injectView();
         setupRecycler();
         loadData();
-//        injectAdapters();
+        injectAdapters();
     }
 
     private void injectView() {
@@ -60,15 +63,18 @@ public class MainActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRviContainer.setLayoutManager(llm);
         mRviContainer.setHasFixedSize(true);
-
-        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListenerTest() {
+        mRviContainer.setOnScrollListener(new EndlessRecyclerOnScrollListenerTest() {
             @Override public void onLoadMore(int currentPage) {
-                mJobAdapter.showProgress();
                 Log.d(TAG, "onLoadMore() called with: currentPage = [" + currentPage + "]");
+                mJobAdapter.showProgress();
                 loadDataEndLess(currentPage);
             }
-        };
-        mRviContainer.setOnScrollListener(mEndlessRecyclerOnScrollListener);
+
+            @Override public boolean endlessScrollEnabled() {
+                return !mJobAdapter.isProgressVisible();
+            }
+        });
+        mRviContainer.setItemAnimator(new DefaultItemAnimator());
     }
 
     /*
@@ -120,8 +126,6 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     BaseResponse<JobEntity> body = response.body();
                     List<Job> jobList = mMapper.transformList(body.data);
-                    //mJobList.addAll(jobList);
-                    injectAdapters();
                     mJobAdapter.addItems(jobList);
                 }
             }
